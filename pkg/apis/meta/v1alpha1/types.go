@@ -1,4 +1,4 @@
-package v1apha1
+package v1alpha1
 
 // TypeMeta describes an individual job in an configuration
 // with strings representing the type of the object and its API schema version.
