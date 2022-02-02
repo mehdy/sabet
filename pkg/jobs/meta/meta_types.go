@@ -1,5 +1,7 @@
 package meta
 
+import "io"
+
 // TypeMeta describes an individual job in an configuration
 // with strings representing the type of the job and its version.
 type TypeMeta struct {
@@ -43,4 +45,9 @@ func (r RunSpec) SelectorMatch(m map[string]string) bool {
 		}
 	}
 	return true
+}
+
+type Event struct {
+	Job     Job
+	Payload io.Reader
 }
