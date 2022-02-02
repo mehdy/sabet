@@ -35,3 +35,12 @@ type RunSpec struct {
 	If       string            `json:"if,omitempty"`
 	Selector map[string]string `json:"selector,omitempty"`
 }
+
+func (r RunSpec) SelectorMatch(m map[string]string) bool {
+	for k, v := range m {
+		if sv, ok := r.Selector[k]; !ok || sv != v {
+			return false
+		}
+	}
+	return true
+}
