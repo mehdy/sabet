@@ -2,6 +2,10 @@ package meta
 
 import "io"
 
+const (
+	RunWhenAlways = "always"
+)
+
 // TypeMeta describes an individual job in an configuration
 // with strings representing the type of the job and its version.
 type TypeMeta struct {
