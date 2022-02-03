@@ -55,3 +55,11 @@ type Event struct {
 	Job     Job
 	Payload io.Reader
 }
+
+type StoreMeta struct {
+	Type string `json:"type,omitempty"`
+}
+
+func (s StoreMeta) GetStoreType() string {
+	return s.Type
+}

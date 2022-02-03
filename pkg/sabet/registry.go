@@ -7,22 +7,35 @@ import (
 )
 
 type Registry struct {
-	nameToType map[string]reflect.Type
+	jobTypes   map[string]reflect.Type
+	storeTypes map[string]reflect.Type
 }
 
 func NewRegistry() *Registry {
 	r := &Registry{
-		nameToType: make(map[string]reflect.Type),
+		jobTypes:   make(map[string]reflect.Type),
+		storeTypes: make(map[string]reflect.Type),
 	}
 	r.registerAll()
 
 	return r
 }
 
-func (r *Registry) Register(name string, t meta.Job) {
-	r.nameToType[name] = reflect.TypeOf(t)
+func (r *Registry) registerAll() {
 }
 
-func (r *Registry) GetType(name string) reflect.Type {
-	return r.nameToType[name]
+func (r *Registry) RegisterJobType(name string, t meta.Job) {
+	r.jobTypes[name] = reflect.TypeOf(t)
+}
+
+func (r *Registry) RegisterStoreType(name string, t meta.Store) {
+	r.storeTypes[name] = reflect.TypeOf(t)
+}
+
+func (r *Registry) GetStoreType(name string) reflect.Type {
+	return r.storeTypes[name]
+}
+
+func (r *Registry) GetJobType(name string) reflect.Type {
+	return r.jobTypes[name]
 }

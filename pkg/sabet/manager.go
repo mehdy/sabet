@@ -1,9 +1,7 @@
 package sabet
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -104,26 +102,46 @@ func (m *Manager) loadConfig(path string) {
 		panic(err)
 	}
 
-	var dataBuf bytes.Buffer
-	tee := io.TeeReader(bytes.NewReader(input), &dataBuf)
-
-	metaBytes, err := ioutil.ReadAll(tee)
-	if err != nil {
+	job := m.loadJobMeta(input)
+	if err := yaml.Unmarshal(input, job); err != nil {
 		panic(err)
 	}
-
-	t := &meta.TypeMeta{}
-	if err := yaml.Unmarshal(metaBytes, t); err != nil {
-		panic(err)
-	}
-
-	jobType := m.registry.GetType(t.Type)
-
-	job := reflect.New(jobType.Elem()).Interface().(meta.Job)
-
-	if err := yaml.Unmarshal(dataBuf.Bytes(), job); err != nil {
-		panic(err)
-	}
+	m.loadStore(job, input)
 
 	m.jobs[fmt.Sprintf("%s.%s", job.GetType(), job.GetName())] = job
+}
+
+func (m *Manager) loadJobMeta(buf []byte) meta.Job {
+	t := &meta.TypeMeta{}
+	if err := yaml.Unmarshal(buf, t); err != nil {
+		panic(err)
+	}
+
+	jobType := m.registry.GetJobType(t.Type)
+
+	return reflect.New(jobType.Elem()).Interface().(meta.Job)
+}
+
+type StoreLoader struct {
+	meta.Store `json:"store,omitempty"`
+}
+
+func (m *Manager) loadStore(job meta.Job, buf []byte) {
+	if job.GetStoreType() == "" {
+		return
+	}
+	storeType := m.registry.GetStoreType(job.GetStoreType())
+
+	store := reflect.New(storeType.Elem()).Interface().(meta.Store)
+
+	sl := &StoreLoader{store}
+	if err := yaml.Unmarshal(buf, sl); err != nil {
+		panic(err)
+	}
+
+	if err := store.Init(); err != nil {
+		panic(err)
+	}
+
+	job.SetStore(store)
 }
