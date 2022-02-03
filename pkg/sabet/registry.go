@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	"github.com/mehdy/sabet/pkg/jobs/meta"
+	"github.com/mehdy/sabet/pkg/stores/fs"
 )
 
 type Registry struct {
@@ -22,6 +23,7 @@ func NewRegistry() *Registry {
 }
 
 func (r *Registry) registerAll() {
+	r.RegisterStoreType("fs", &fs.FS{})
 }
 
 func (r *Registry) RegisterJobType(name string, t meta.Job) {
