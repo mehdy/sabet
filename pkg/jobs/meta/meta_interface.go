@@ -1,7 +1,6 @@
 package meta
 
 import (
-	"bytes"
 	"io"
 )
 
@@ -14,7 +13,7 @@ type Job interface {
 	GetStoreType() string
 	SetStore(store Store)
 
-	Execute(input io.Reader) (*bytes.Buffer, error)
+	Execute(input io.Reader) (io.Reader, error)
 }
 
 type Store interface {
