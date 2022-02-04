@@ -21,7 +21,13 @@ func (f *FS) Init() error {
 }
 
 func (f *FS) Get(key string) ([]byte, error) {
-	return ioutil.ReadFile(path.Join(f.Path, key))
+	content, err := ioutil.ReadFile(path.Join(f.Path, key))
+
+	if err != nil && !os.IsNotExist(err) {
+		return nil, nil
+	}
+
+	return content, nil
 }
 
 func (f *FS) Put(key string, val []byte) error {
