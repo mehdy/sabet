@@ -108,6 +108,10 @@ func (m *Manager) loadConfig(path string) {
 	}
 	m.loadStore(job, input)
 
+	if err := job.Init(); err != nil {
+		panic(fmt.Errorf("Job %q: %w", job.GetName(), err))
+	}
+
 	m.jobs[fmt.Sprintf("%s.%s", job.GetType(), job.GetName())] = job
 }
 

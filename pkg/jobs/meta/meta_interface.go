@@ -13,6 +13,7 @@ type Job interface {
 	GetStoreType() string
 	SetStore(store Store)
 
+	Init() error
 	Execute(input io.Reader) (io.Reader, error)
 }
 

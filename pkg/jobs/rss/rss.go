@@ -23,6 +23,10 @@ func urlToKey(url string) string {
 	return hex.EncodeToString(key.Sum([]byte(url)))
 }
 
+func (j Job) Init() error {
+	return nil
+}
+
 func (j *Job) Execute(_ io.Reader) (io.Reader, error) {
 	fp := gofeed.NewParser()
 	newItems := make([]*gofeed.Item, 0)
