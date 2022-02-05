@@ -5,6 +5,7 @@ import (
 
 	"github.com/mehdy/sabet/pkg/jobs/meta"
 	"github.com/mehdy/sabet/pkg/jobs/rss"
+	"github.com/mehdy/sabet/pkg/jobs/telegram"
 	"github.com/mehdy/sabet/pkg/stores/fs"
 )
 
@@ -25,6 +26,7 @@ func NewRegistry() *Registry {
 
 func (r *Registry) registerAll() {
 	r.RegisterJobType("RSS", &rss.Job{})
+	r.RegisterJobType("Telegram", &telegram.Job{})
 
 	r.RegisterStoreType("fs", &fs.FS{})
 }
