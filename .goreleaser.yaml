@@ -24,5 +24,6 @@ changelog:
   sort: asc
   filters:
     exclude:
+      - "*.md"
       - "^docs:"
       - "^test:"
