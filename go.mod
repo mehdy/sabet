@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/mmcdole/gofeed v1.1.3
+	github.com/sirupsen/logrus v1.8.1
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -16,6 +17,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
+	golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
