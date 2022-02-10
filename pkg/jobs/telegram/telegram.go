@@ -3,6 +3,7 @@ package telegram
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"text/template"
@@ -45,10 +46,18 @@ func (j Job) Execute(payload io.Reader) (io.Reader, error) {
 	}
 
 	if _, ok := input["items"]; !ok {
-		return nil, nil
+		return nil, fmt.Errorf("items not found in input")
 	}
 
-	for _, item := range input["items"].([]interface{}) {
+	items, ok := input["items"].([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("items is not an array")
+	}
+
+	itemsCount := len(items)
+	sentCounter := 0
+
+	for _, item := range items {
 		buf := new(bytes.Buffer)
 
 		templ := template.Must(template.New("").Parse(j.Spec.Template.Text))
@@ -65,7 +74,11 @@ func (j Job) Execute(payload io.Reader) (io.Reader, error) {
 			j.log().WithError(err).Error("Failed to send message")
 			continue
 		}
+
+		sentCounter++
 	}
+
+	j.log().WithField("items", itemsCount).WithField("sent", sentCounter).Info("Message sent")
 
 	return nil, nil
 }
