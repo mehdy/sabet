@@ -3,8 +3,6 @@ package sabet
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
@@ -80,25 +78,19 @@ func (m *Manager) Run() {
 }
 
 func (m *Manager) loadConfigs() {
-	if err := filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			logrus.WithError(err).Error("Error while walking directory")
-			return nil
+	files, err := ioutil.ReadDir(".")
+	if err != nil {
+		logrus.WithError(err).Fatal("Failed to read configs")
+	}
+
+	for _, file := range files {
+		if file.IsDir() || !strings.HasSuffix(file.Name(), ".yaml") {
+			continue
 		}
 
-		if d.IsDir() {
-			return nil
+		if err := m.loadConfig(file.Name()); err != nil {
+			logrus.WithError(err).WithField("file", file.Name()).Error("Error while loading config")
 		}
-
-		if strings.HasSuffix(path, ".yaml") {
-			if err := m.loadConfig(path); err != nil {
-				logrus.WithError(err).WithField("file", path).Error("Error while loading config")
-			}
-		}
-
-		return nil
-	}); err != nil {
-		logrus.WithError(err).Fatal("Error while walking directory")
 	}
 }
 
