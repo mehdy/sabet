@@ -20,7 +20,7 @@ func (j *Job) SetStore(store meta.Store) {
 
 func urlToKey(url string) string {
 	key := sha1.New()
-	return hex.EncodeToString(key.Sum([]byte(url)))
+	return hex.EncodeToString(key.Sum([]byte(url)))[:8]
 }
 
 func (j Job) Init() error {
