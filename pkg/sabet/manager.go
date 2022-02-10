@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/mehdy/sabet/pkg/jobs/meta"
+	"github.com/sirupsen/logrus"
 	"sigs.k8s.io/yaml"
 )
 
@@ -41,8 +42,11 @@ func (m *Manager) handleEvent(e *meta.Event) {
 
 	result, err := e.Job.Execute(e.Payload)
 	if err != nil {
-		panic(err)
+		logrus.WithError(err).WithField("job", e.Job.GetName()).Error("Job failed")
+		return
 	}
+
+	logrus.WithField("job", e.Job.GetName()).Info("Job finished")
 
 	for _, job := range m.jobs {
 		if job.GetRun().SelectorMatch(e.Job.GetLabels()) {
@@ -78,7 +82,8 @@ func (m *Manager) Run() {
 func (m *Manager) loadConfigs() {
 	if err := filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
 		if err != nil {
-			panic(err)
+			logrus.WithError(err).Error("Error while walking directory")
+			return nil
 		}
 
 		if d.IsDir() {
@@ -86,53 +91,65 @@ func (m *Manager) loadConfigs() {
 		}
 
 		if strings.HasSuffix(path, ".yaml") {
-			m.loadConfig(path)
+			if err := m.loadConfig(path); err != nil {
+				logrus.WithError(err).WithField("file", path).Error("Error while loading config")
+			}
 		}
 
 		return nil
-
 	}); err != nil {
-		panic(err)
+		logrus.WithError(err).Fatal("Error while walking directory")
 	}
 }
 
-func (m *Manager) loadConfig(path string) {
+func (m *Manager) loadConfig(path string) error {
+	logrus.WithField("file", path).Info("Loading config")
+
 	input, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	job := m.loadJobMeta(input)
-	if err := yaml.Unmarshal(input, job); err != nil {
-		panic(err)
+	job, err := m.loadJobMeta(input)
+	if err != nil {
+		return err
 	}
-	m.loadStore(job, input)
+
+	if err := yaml.Unmarshal(input, job); err != nil {
+		return err
+	}
+
+	if err := m.loadStore(job, input); err != nil {
+		return err
+	}
 
 	if err := job.Init(); err != nil {
-		panic(fmt.Errorf("Job %q: %w", job.GetName(), err))
+		return err
 	}
 
 	m.jobs[fmt.Sprintf("%s.%s", job.GetType(), job.GetName())] = job
+
+	return nil
 }
 
-func (m *Manager) loadJobMeta(buf []byte) meta.Job {
+func (m *Manager) loadJobMeta(buf []byte) (meta.Job, error) {
 	t := &meta.TypeMeta{}
 	if err := yaml.Unmarshal(buf, t); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	jobType := m.registry.GetJobType(t.Type)
 
-	return reflect.New(jobType.Elem()).Interface().(meta.Job)
+	return reflect.New(jobType.Elem()).Interface().(meta.Job), nil
 }
 
 type StoreLoader struct {
 	meta.Store `json:"store,omitempty"`
 }
 
-func (m *Manager) loadStore(job meta.Job, buf []byte) {
+func (m *Manager) loadStore(job meta.Job, buf []byte) error {
 	if job.GetStoreType() == "" {
-		return
+		return nil
 	}
 	storeType := m.registry.GetStoreType(job.GetStoreType())
 
@@ -140,12 +157,14 @@ func (m *Manager) loadStore(job meta.Job, buf []byte) {
 
 	sl := &StoreLoader{store}
 	if err := yaml.Unmarshal(buf, sl); err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := store.Init(); err != nil {
-		panic(err)
+		return err
 	}
 
 	job.SetStore(store)
+
+	return nil
 }

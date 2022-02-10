@@ -9,6 +9,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/mehdy/sabet/pkg/jobs/meta"
+	"github.com/sirupsen/logrus"
 )
 
 func (j Job) GetStoreType() string {
@@ -29,6 +30,13 @@ func (j *Job) Init() error {
 	return nil
 }
 
+func (j *Job) log() *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"type": j.GetType(),
+		"name": j.GetName(),
+	})
+}
+
 func (j Job) Execute(payload io.Reader) (io.Reader, error) {
 	var input map[string]interface{}
 
@@ -46,14 +54,16 @@ func (j Job) Execute(payload io.Reader) (io.Reader, error) {
 		templ := template.Must(template.New("").Parse(j.Spec.Template.Text))
 
 		if err := templ.Execute(buf, item); err != nil {
-			return nil, err
+			j.log().WithError(err).Error("Failed to execute template")
+			continue
 		}
 
 		msg := tgbotapi.NewMessageToChannel(j.Spec.Channel, buf.String())
 		msg.ParseMode = j.Spec.Template.ParseMode
 
 		if _, err := j.bot.Send(msg); err != nil {
-			return nil, err
+			j.log().WithError(err).Error("Failed to send message")
+			continue
 		}
 	}
 
