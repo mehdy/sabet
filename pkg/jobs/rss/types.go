@@ -18,10 +18,7 @@ type Job struct {
 }
 
 type Source struct {
-	URL        string   `json:"url,omitempty"`
-	Title      string   `json:"title,omitempty"`
-	Categories []string `json:"categories,omitempty"`
-	Languages  []string `json:"languages,omitempty"`
+	URL string `json:"url,omitempty"`
 }
 
 type Result struct {
