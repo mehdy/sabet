@@ -14,7 +14,7 @@ or you could just [download the binary](https://github.com/mehdy/sabet/releases)
 
 ## Usage
 
-You need to create yaml files to configure the jobs you need.
+You need to create some yaml files to configure the jobs you need.
 
 For example, let's create some jobs to deliver RSS feeds to a Telegram channel:
 
@@ -57,7 +57,7 @@ spec:
 
 And you need to provide an environment variable named TELEGRAM_NEWS_READER_BOT_TOKEN containing the bot token.
 
-and finally you need to run `sabet`:
+and finally you need to run `sabet` inside the directory where you have the yaml files:
 
 ```bash
 sabet
