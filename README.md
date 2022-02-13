@@ -1,6 +1,6 @@
 # Sabet
 
-Sabet (Static Automation Bot Event Tool; just kidding sabet mean fixed or static) is a tool that helps you to automate your events without the need to run it on a server for ever. You can just schedule a github action to run it periodically and it will do the rest. Or you can just run it manually on your PC whenever you want to update it.
+Sabet (Static Automation Bot Event Tool; just kidding sabet means fixed or static in Persian) is a tool that helps you to automate your events without the need to run it on a server for ever. You can just schedule a github action to run it periodically and it will do the rest. Or you can just run it manually on your PC whenever you want to update it.
 
 ## Installation
 
