@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/mehdy/sabet/pkg/sabet"
+	"github.com/mehdy/sabet/cmd"
 )
 
 func main() {
-	sabet.NewManager().Run()
+	cmd.Execute()
 }

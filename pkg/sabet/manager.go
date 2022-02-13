@@ -19,13 +19,13 @@ type Manager struct {
 	wg       sync.WaitGroup
 }
 
-func NewManager() *Manager {
+func NewManager(configDirs []string) *Manager {
 	m := &Manager{
 		registry: NewRegistry(),
 		jobs:     make(map[string]meta.Job),
 		eventsCh: make(chan *meta.Event, 64),
 	}
-	m.loadConfigs()
+	m.loadConfigs(configDirs)
 
 	return m
 }
@@ -77,19 +77,21 @@ func (m *Manager) Run() {
 	m.wg.Wait()
 }
 
-func (m *Manager) loadConfigs() {
-	files, err := ioutil.ReadDir(".")
-	if err != nil {
-		logrus.WithError(err).Fatal("Failed to read configs")
-	}
-
-	for _, file := range files {
-		if file.IsDir() || !strings.HasSuffix(file.Name(), ".yaml") {
-			continue
+func (m *Manager) loadConfigs(configDirs []string) {
+	for _, dir := range configDirs {
+		files, err := ioutil.ReadDir(dir)
+		if err != nil {
+			logrus.WithError(err).Errorf("Skipped reading configs inside %q", dir)
 		}
 
-		if err := m.loadConfig(file.Name()); err != nil {
-			logrus.WithError(err).WithField("file", file.Name()).Error("Error while loading config")
+		for _, file := range files {
+			if file.IsDir() || !strings.HasSuffix(file.Name(), ".yaml") {
+				continue
+			}
+
+			if err := m.loadConfig(file.Name()); err != nil {
+				logrus.WithError(err).WithField("file", file.Name()).Error("Error while loading config")
+			}
 		}
 	}
 }
