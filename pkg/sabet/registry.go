@@ -40,9 +40,19 @@ func (r *Registry) RegisterStoreType(name string, t meta.Store) {
 }
 
 func (r *Registry) GetStoreType(name string) reflect.Type {
-	return r.storeTypes[name]
+	storeType, ok := r.storeTypes[name]
+	if !ok {
+		return nil
+	}
+
+	return storeType
 }
 
 func (r *Registry) GetJobType(name string) reflect.Type {
-	return r.jobTypes[name]
+	jobType, ok := r.jobTypes[name]
+	if !ok {
+		return nil
+	}
+
+	return jobType
 }

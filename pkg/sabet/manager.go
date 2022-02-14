@@ -133,6 +133,9 @@ func (m *Manager) loadJobMeta(buf []byte) (meta.Job, error) {
 	}
 
 	jobType := m.registry.GetJobType(t.Type)
+	if jobType == nil {
+		return nil, fmt.Errorf("Unknown job type %q", t.Type)
+	}
 
 	return reflect.New(jobType.Elem()).Interface().(meta.Job), nil
 }
